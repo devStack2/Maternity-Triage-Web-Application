@@ -1,79 +1,93 @@
 # Maternity Triage Web Application
 
 ## Overview
+A lightweight, **completely offline** maternity triage tool designed for midwives, nurses, and maternity staff — especially useful in busy or resource-limited settings like health facilities in Uganda.
 
-A lightweight, **completely offline** maternity triage tool built for midwives, nurses, and maternity staff — especially useful in busy or resource-limited settings like health facilities in Uganda.
-
-The app lets you quickly enter patient details and symptoms → calculates a color-coded priority level → keeps a local queue of waiting patients.
+The app allows quick entry of patient details and symptoms → automatically calculates a color-coded priority level → maintains a local queue of waiting patients.
 
 **No internet needed** after first load.  
-**No login, no server, no external files** — just one HTML file.
+**No login, no server, no database** — just three simple files.
 
 ## Features
-
-- Single-file HTML (easy to share via USB, email, WhatsApp, etc.)
 - Mobile-friendly & responsive design
-- Simple form for patient info + common maternity symptoms
-- Automatic priority assignment (Red / Orange / Yellow / Green)
-- Persistent queue stored in browser (survives page refresh / reopen)
-- Remove patients or clear queue when done
-- Clean, modern look with color-coded badges
+- Simple form for patient info + common maternity/obstetric symptoms
+- Automatic priority assignment (Red / Orange / Yellow / Green) based on simplified BSOTS/MFTI-inspired rules
+- Persistent patient queue stored in the browser (survives refresh / reopen)
+- View, remove, sort, search and export queue to CSV
+- Clean, modern interface with color-coded priority badges
+- Patient detail modal for quick review
+- Works fully offline once files are saved
 
 ## How to Use
 
-1. **Get the app**  
-   Save the code as `maternity-triage.html`
+### Option A – Recommended (cleaner folder structure)
+1. Create a folder called `maternity-triage`
+2. Save the three files inside it:
+   - `index.html`
+   - `styles.css`
+   - `script.js`
+3. Double-click `index.html` to open in any modern browser (Chrome, Firefox, Edge, Safari…)
 
-2. **Open it**  
-   Double-click the file or open in Chrome / Firefox / Edge / Safari (any modern browser)
+### Option B – Single-file fallback (if you prefer)
+- Just copy the **original single-file version** (everything in one HTML file) and save as `maternity-triage.html`
 
-3. **Assess a patient**  
-   - Fill name/ID, gestational age, BP, fetal heart rate, symptoms  
-   - Click **Assess Priority**  
-   - See result → patient added to queue automatically
-
-4. **View & manage queue**  
-   - See list of waiting patients with priority & time  
-   - Remove patient after handling  
-   - Clear queue at shift end if needed
-
-5. **Offline mode**  
-   Works fully without internet once opened once  
-   Data stays on the device/browser you’re using
+### Daily workflow
+1. Open the app on a tablet/phone/laptop at the start of shift
+2. Enter each new patient:
+   - Name/ID, gestational age, BP, fetal heart rate (optional), symptoms
+   - Click **Assess Priority**
+3. Patient is automatically added to the queue with priority & timestamp
+4. Sort by priority or time, search by name, view details, remove when seen
+5. Export to CSV at end of shift if needed
+6. Clear queue when appropriate (confirm dialog protects against mistakes)
 
 ## Priority Levels (Simplified Rules)
+| Level   | Color   | Main Triggers (any of these)                              | Suggested Action              |
+|---------|---------|------------------------------------------------------------|-------------------------------|
+| RED     | Red     | Heavy bleeding, severe pain, BP ≥160/110, abnormal FHR     | Immediate – call doctor now   |
+| ORANGE  | Orange  | High BP symptoms, reduced movements, preterm contractions  | Urgent – see within 10–15 min |
+| YELLOW  | Yellow  | Leaking fluid, fever, mild pain                            | Prompt – see within 30–60 min |
+| GREEN   | Green   | No red/orange flags – routine concern                      | Non-urgent / standard care    |
 
-| Level   | Color   | Triggers (any of these)                                  | Suggested Action         |
-|---------|---------|----------------------------------------------------------|--------------------------|
-| RED     | Red     | Heavy bleeding, BP systolic ≥160, abnormal FHR (<100 or >170 bpm) | Immediate (call doctor now) |
-| ORANGE  | Orange  | Severe pain, high BP symptoms, preterm labor signs       | Urgent – see within 10–15 min |
-| YELLOW  | Yellow  | Reduced fetal movements, leaking fluid, fever/infection  | Prompt – see within 30–60 min |
-| GREEN   | Green   | No red flags / routine concern                           | Non-urgent / routine care |
-
-→ These are **basic rules** inspired by obstetric triage systems (MFTI, BSOTS, etc.).  
-**Always use your clinical judgment** and follow your facility’s protocols.
+→ These are **simplified rules** inspired by BSOTS, MFTI and similar obstetric triage systems.  
+**Always apply clinical judgment** and follow your facility’s official protocols.
 
 ## Important Notes
-
-- **Data privacy**: Everything stays in **your browser only** (localStorage) — not sent anywhere
-- **Not medical software**: This is a simple aid/tool — **not certified**, not a replacement for training or guidelines
-- **Customization**: Edit the JavaScript `getPriority()` function to match your local danger signs or protocols
-- **Sharing**: Just send the `.html` file — no installation needed
+- **Data privacy** — Everything is stored **only in the browser** (localStorage). Nothing is sent anywhere.
+- **Not certified medical software** — This is a simple decision-support aid/tool. It is **not** a replacement for training, experience, or official guidelines.
+- **Browser-specific data** — The queue is saved per browser/device. Clearing browser data or using incognito mode will delete the queue.
+- **Sharing** — Send the entire folder (or zip it) via USB, WhatsApp, email, etc.
 
 ## Customization Ideas
+You can easily modify the behavior by editing these files:
 
-In the `<script>` section you can:
+- **`script.js`**  
+  - Change priority logic → edit the `getPriority()` function  
+  - Add/remove symptoms in the form submission logic  
+  - Add new fields (e.g. temperature, pulse, urine dipstick)  
+  - Add print functionality for the queue
 
-- Add more symptoms checkboxes
-- Change colors (`:root` variables at top of `<style>`)
-- Add fields (temperature, pulse, etc.)
-- Modify priority thresholds
-- Add a print button for queue
+- **`styles.css`**  
+  - Change colors (`:root` variables)  
+  - Adjust layout, fonts, spacing for tablets/phones
+
+- **`index.html`**  
+  - Add more form fields  
+  - Change labels, instructions, or add facility logo
+
+## Folder Structure (recommended)
+maternity-triage/
+├── index.html     ← main file – open this
+├── styles.css     ← all styling
+└── script.js      ← logic & priority rules
+
 
 ## Made with care
+© 2026 – For maternity teams in Kampala and beyond  
+Thank you for the vital work you do every day.
 
-© 2026 Team One – Kampala, Uganda  
-For maternity teams doing important work every day.
+Questions, bug reports, or feature suggestions?  
+Feel free to modify the code or reach out.
 
-Stay safe & thank you for what you do!  
-Questions or improvements? Feel free to modify or reach out.
+---------------------------------------------
+Stay safe & strong 
