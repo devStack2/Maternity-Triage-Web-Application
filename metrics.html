@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Maternity Triage - Software Size Metrics</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="metrics_data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .metrics-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .metrics-nav {
+      text-align: center;
+      margin: -10px 0 20px;
+    }
+
+    .metrics-nav a {
+      color: #006d77;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .metrics-section {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .metrics-section h2 {
+      color: #28a745;
+      margin-bottom: 12px;
+      font-size: 1.3rem;
+    }
+
+    .info-box {
+      background: #e8f4f8;
+      border-left: 4px solid #17a2b8;
+      padding: 12px 14px;
+      border-radius: 6px;
+      color: #1f3e4a;
+      line-height: 1.55;
+      white-space: pre-line;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .summary-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+      border: 1px solid #e8ecef;
+      padding: 14px;
+    }
+
+    .summary-value {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #212529;
+      line-height: 1.1;
+    }
+
+    .summary-label {
+      font-weight: 600;
+      color: #495057;
+      margin-top: 6px;
+    }
+
+    .summary-sub {
+      color: #6c757d;
+      font-size: .9rem;
+      margin-top: 4px;
+    }
+
+    .table-title {
+      font-weight: 700;
+      color: #28a745;
+      margin-bottom: 10px;
+    }
+
+    .metrics-table-wrap {
+      overflow-x: auto;
+    }
+
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .95rem;
+    }
+
+    .metrics-table th,
+    .metrics-table td {
+      padding: 10px;
+      border-bottom: 1px solid #e9ecef;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .metrics-table th {
+      background: #f1f3f5;
+      color: #2f3b45;
+    }
+
+    .metrics-table tbody tr:nth-child(even) {
+      background: #fbfcfd;
+    }
+
+    .metrics-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: .8rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-green { background:#d4edda; color:#155724; }
+    .badge-orange { background:#fff3cd; color:#856404; }
+    .badge-red { background:#f8d7da; color:#721c24; }
+    .badge-blue { background:#cce5ff; color:#004085; }
+    .badge-purple { background:#e2d9f3; color:#4a1f8c; }
+
+    .total-row td {
+      font-weight: 700;
+      background: #eef9f0;
+    }
+
+    .final-row td {
+      font-weight: 800;
+      background: #dff3e3;
+      color: #155724;
+    }
+
+    .note-muted {
+      color: #6c757d;
+      font-size: .92rem;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container metrics-wrap">
+    <header>
+      <h1>Maternity Triage</h1>
+      <div class="subtitle">Software Size Metrics - Chapter 5 (SWE 2204)</div>
+    </header>
+
+    <div class="metrics-nav">
+      <a href="index.html">&larr; Back to Triage App</a>
+    </div>
+
+    <section class="metrics-section">
+      <h2>What is Software Size?</h2>
+      <div class="info-box">Chapter 5 measures the SIZE of the Maternity Triage app in 3 ways:
+1. LOC (Lines of Code) - how many lines were physically written
+2. Halstead Metrics - how complex the code vocabulary is
+3. Function Points - how much functionality is delivered to the user
+These are internal product attributes - measurable without running the app.</div>
+    </section>
+
+    <section class="metrics-section">
+      <h2>LOC Summary Cards</h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-value" id="totalLocCard">0</div>
+          <div class="summary-label">Total Lines of Code</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value" id="totalNclocCard">0</div>
+          <div class="summary-label">Non-Commented Lines</div>
+          <div class="summary-sub" id="totalNclocPct">0% of total</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value" id="commentDensityCard">0%</div>
+          <div class="summary-label">Avg Comment Density</div>
+          <div class="summary-sub">Target: &ge; 20%</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value">3</div>
+          <div class="summary-label">Files Measured</div>
+          <div class="summary-sub">index.html, styles.css, script.js</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="metrics-section">
+      <div class="table-title">Lines of Code Per File</div>
+      <div class="metrics-table-wrap">
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>Total LOC</th>
+              <th>NCLOC</th>
+              <th>CLOC</th>
+              <th>Blank Lines</th>
+              <th>Comment Density</th>
+              <th>Size Rating</th>
+            </tr>
+          </thead>
+          <tbody id="locTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="metrics-section">
+      <h2>LOC Bar Chart</h2>
+      <div class="note-muted">Lines of Code Breakdown per File</div>
+      <canvas id="locChart" height="120"></canvas>
+    </section>
+
+    <section class="metrics-section">
+      <h2>Halstead Software Metrics</h2>
+      <div class="info-box">Halstead's Theory (1971): Every program is made of operators and operands.
+mu1 = distinct operators (if, =, +, &&, function, etc.)
+mu2 = distinct operands (variables, constants, strings)
+N  = N1 + N2 (total length)
+V  = N x log2(mu1+mu2) (volume - mental effort to write it)
+B  = E^(2/3) / 3000 (estimated bugs remaining at delivery)
+Note: Halstead was designed for assembly language (1971). Used here
+as a theoretical exercise - applied to JavaScript for academic purposes.</div>
+      <div class="metrics-table-wrap" style="margin-top:12px;">
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>&mu;1</th>
+              <th>&mu;2</th>
+              <th>N1</th>
+              <th>N2</th>
+              <th>Vocabulary &mu;</th>
+              <th>Length N</th>
+              <th>Volume V</th>
+              <th>Est. Bugs B</th>
+              <th>Interpretation</th>
+            </tr>
+          </thead>
+          <tbody id="halsteadBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="metrics-section">
+      <h2>Function Points (Chapter 5)</h2>
+      <div class="info-box">Function Points measure HOW MUCH the Maternity Triage app does for users -
+language-independent. We count: inputs from user (EI), outputs with
+calculations (EO), simple data retrievals (EQ), and data stored (ILF).
+Since this app has NO external database, EIF = 0.
+Key difference: EO involves calculations. EQ is simple retrieval only.</div>
+      <div class="metrics-table-wrap" style="margin-top:12px;">
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Complexity</th>
+              <th>Weight</th>
+              <th>FP Points</th>
+            </tr>
+          </thead>
+          <tbody id="fpBody"></tbody>
+          <tbody>
+            <tr class="total-row">
+              <td colspan="5">UFC (Unadjusted Function Points)</td>
+              <td id="ufc-total">0</td>
+            </tr>
+            <tr class="total-row">
+              <td colspan="5">VAF (Value Adjustment Factor)</td>
+              <td id="vaf-display">1.00</td>
+            </tr>
+            <tr class="final-row">
+              <td colspan="5">FINAL FUNCTION POINTS</td>
+              <td id="fp-final">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box" id="fpConclusion" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="metrics-section">
+      <h2>GQM Connection</h2>
+      <div class="info-box" id="gqmBox"></div>
+    </section>
+  </div>
+
+  <footer>
+    SWE 2204 Software Metrics - MUST BSE 2024 | Chapter 5: Software Size
+  </footer>
+
+  <script>
+    function pct(part, total) {
+      if (!total) return 0;
+      return ((part / total) * 100).toFixed(2);
+    }
+
+    function sizeBadge(totalLoc) {
+      if (totalLoc < 100) return '<span class="badge badge-green">Small ✅</span>';
+      if (totalLoc < 300) return '<span class="badge badge-orange">Medium ⚠️</span>';
+      return '<span class="badge badge-red">Large 🔴</span>';
+    }
+
+    function densityBadge(value) {
+      const cls = value >= 20 ? 'badge-green' : 'badge-orange';
+      return '<span class="badge ' + cls + '">' + value.toFixed(2) + '%</span>';
+    }
+
+    function typeBadge(type) {
+      if (type === 'EI') return '<span class="badge badge-green">EI</span>';
+      if (type === 'EO') return '<span class="badge badge-orange">EO</span>';
+      if (type === 'EQ') return '<span class="badge badge-blue">EQ</span>';
+      if (type === 'ILF') return '<span class="badge badge-purple">ILF</span>';
+      return '<span class="badge">' + type + '</span>';
+    }
+
+    document.getElementById('totalLocCard').textContent = locSummary.totalLOC;
+    document.getElementById('totalNclocCard').textContent = locSummary.totalNCLOC;
+    document.getElementById('totalNclocPct').textContent = pct(locSummary.totalNCLOC, locSummary.totalLOC) + '% of total';
+
+    const densityEl = document.getElementById('commentDensityCard');
+    densityEl.textContent = locSummary.avgCommentDensity.toFixed(2) + '%';
+    densityEl.style.color = locSummary.avgCommentDensity >= 20 ? '#28a745' : '#fd7e14';
+
+    const locBody = document.getElementById('locTableBody');
+    locFiles.forEach(function(file) {
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + file.filename + '</td>' +
+        '<td>' + file.total_loc + '</td>' +
+        '<td>' + file.ncloc + '</td>' +
+        '<td>' + file.cloc + '</td>' +
+        '<td>' + file.blank_lines + '</td>' +
+        '<td>' + densityBadge(file.comment_density) + '</td>' +
+        '<td>' + sizeBadge(file.total_loc) + '</td>';
+      locBody.appendChild(tr);
+    });
+
+    const halsteadBody = document.getElementById('halsteadBody');
+    halstead.forEach(function(item) {
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + item.filename + '</td>' +
+        '<td>' + item.mu1 + '</td>' +
+        '<td>' + item.mu2 + '</td>' +
+        '<td>' + item.N1 + '</td>' +
+        '<td>' + item.N2 + '</td>' +
+        '<td>' + item.vocabulary + '</td>' +
+        '<td>' + item.length + '</td>' +
+        '<td>' + item.volume.toFixed(1) + '</td>' +
+        '<td>' + item.estimated_bugs.toFixed(2) + '</td>' +
+        '<td>' + item.interpretation + '</td>';
+      halsteadBody.appendChild(tr);
+    });
+
+    const fpBody = document.getElementById('fpBody');
+    fpComponents.forEach(function(item) {
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + item.feature + '</td>' +
+        '<td>' + typeBadge(item.type) + '</td>' +
+        '<td>' + item.description + '</td>' +
+        '<td>' + item.complexity + '</td>' +
+        '<td>' + item.weight + '</td>' +
+        '<td>' + item.fp_points + '</td>';
+      fpBody.appendChild(tr);
+    });
+
+    const ufcDisplay = fpComponents.reduce(function(sum, comp) { return sum + comp.fp_points; }, 0);
+    document.getElementById('ufc-total').textContent = ufcDisplay;
+    document.getElementById('vaf-display').textContent = '1.00';
+    document.getElementById('fp-final').textContent = (ufcDisplay * 1.00).toFixed(0);
+
+    document.getElementById('fpConclusion').textContent =
+      'The Maternity Triage app has ' + finalFP.toFixed(0) + ' Function Points.\n' +
+      'This classifies it as a Small application.\n' +
+      'VAF = 1.00 because this is an average-complexity system\n' +
+      '(all 14 technical factors rated 2.5/5 on average).\n' +
+      'FP is language-independent - fair to compare with\n' +
+      'other student projects regardless of tech stack.';
+
+    document.getElementById('gqmBox').textContent =
+      'How Size Metrics Connect to Measurement Goals:\n' +
+      '• LOC tracks growth - if LOC grows fast, complexity may be increasing\n' +
+      '• Comment density (current: ' + locSummary.avgCommentDensity.toFixed(2) + '%) - target >= 20% for maintainability\n' +
+      '• Function Points = ' + finalFP.toFixed(0) + ' - measures user value delivered, not code volume\n' +
+      '• Halstead B ≈ 0 across all files - very low residual defect risk';
+
+    if (window.Chart) {
+      const ctx = document.getElementById('locChart');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: locFiles.map(function(file) { return file.filename; }),
+          datasets: [
+            {
+              label: 'Working Code',
+              data: locFiles.map(function(file) { return file.ncloc; }),
+              backgroundColor: '#28a745',
+              stack: 'loc-stack'
+            },
+            {
+              label: 'Comments',
+              data: locFiles.map(function(file) { return file.cloc; }),
+              backgroundColor: '#17a2b8',
+              stack: 'loc-stack'
+            },
+            {
+              label: 'Blank Lines',
+              data: locFiles.map(function(file) { return file.blank_lines; }),
+              backgroundColor: '#adb5bd',
+              stack: 'loc-stack'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Lines of Code Breakdown per File'
+            }
+          },
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
