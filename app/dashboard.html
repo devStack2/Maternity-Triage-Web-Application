@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — MamaCare</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<!-- ── Top Nav ────────────────────────────── -->
+<nav class="topnav dash-nav">
+  <a href="dashboard.html" class="logo"><span>🌸</span> MamaCare</a>
+  <div class="nav-links" id="navLinks">
+    <a href="#home"      class="nav-link active" data-tab="home">🏠 Home</a>
+    <a href="#checker"   class="nav-link" data-tab="checker">🩺 Symptom Checker</a>
+    <a href="#history"   class="nav-link" data-tab="history">📊 My History</a>
+    <a href="#journal"   class="nav-link" data-tab="journal">📓 Journal</a>
+    <a href="#wellbeing" class="nav-link" data-tab="wellbeing">🌿 Wellbeing</a>
+    <div class="nav-user" id="navUser">
+      <span id="navGreeting">Hi!</span>
+      <button class="btn btn-sm btn-outline" onclick="handleLogout()">Log out</button>
+    </div>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ── Main Content ───────────────────────── -->
+<main class="dash-main">
+
+  <!-- ══════════════════════════════════
+       TAB: HOME / Overview
+  ══════════════════════════════════ -->
+  <div class="tab-pane active" id="tab-home">
+    <div class="dash-container">
+
+      <!-- Pregnancy banner -->
+      <div class="preg-banner">
+        <div class="preg-banner-left">
+          <div class="preg-label">Your Pregnancy Journey</div>
+          <h2 id="bannerWeeks">Loading…</h2>
+          <p id="bannerSub" class="preg-sub"></p>
+          <div id="bannerDue" class="preg-due"></div>
+        </div>
+        <div class="preg-banner-right">
+          <div class="progress-ring-wrap">
+            <svg class="progress-ring" width="110" height="110">
+              <circle class="ring-bg" cx="55" cy="55" r="46" />
+              <circle class="ring-fill" id="ringFill" cx="55" cy="55" r="46" />
+            </svg>
+            <div class="ring-label">
+              <span id="ringPct">0%</span>
+              <small>complete</small>
+            </div>
+          </div>
+        </div>
+        <div class="banner-blob"></div>
+      </div>
+
+      <!-- Week tip -->
+      <div class="week-tip-card" id="weekTipCard">
+        <div class="tip-icon">💡</div>
+        <div>
+          <strong id="tipTitle">Did you know?</strong>
+          <p id="tipText"></p>
+        </div>
+      </div>
+
+      <!-- Quick stats -->
+      <div class="quick-stats">
+        <div class="qs-card qs-rose">
+          <div class="qs-icon">🩺</div>
+          <div class="qs-val" id="statChecks">0</div>
+          <div class="qs-lbl">Symptom Checks</div>
+        </div>
+        <div class="qs-card qs-sage">
+          <div class="qs-icon">📓</div>
+          <div class="qs-val" id="statJournal">0</div>
+          <div class="qs-lbl">Journal Entries</div>
+        </div>
+        <div class="qs-card qs-blush">
+          <div class="qs-icon">🗓️</div>
+          <div class="qs-val" id="statDays">—</div>
+          <div class="qs-lbl">Days to Due Date</div>
+        </div>
+        <div class="qs-card qs-mauve">
+          <div class="qs-icon">💛</div>
+          <div class="qs-val" id="statWeeks">—</div>
+          <div class="qs-lbl">Weeks Along</div>
+        </div>
+      </div>
+
+      <!-- Last assessment summary -->
+      <div id="lastAssessSection">
+        <h3 class="section-label-sm">Latest Assessment</h3>
+        <div id="lastAssessCard" class="last-assess-card" style="display:none;"></div>
+        <div id="noLastAssess" class="empty-hint">
+          No assessments yet. <a href="#" onclick="switchTab('checker'); return false;">Check your symptoms →</a>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="quick-actions">
+        <button class="qa-btn" onclick="switchTab('checker')">🩺 Check Symptoms</button>
+        <button class="qa-btn" onclick="switchTab('journal')">📓 Write in Journal</button>
+        <button class="qa-btn" onclick="switchTab('wellbeing')">🌿 Log Wellbeing</button>
+      </div>
+
+      <!-- Reminders -->
+      <div class="reminders-card">
+        <h3>💛 Your Daily Reminders</h3>
+        <div class="reminders-list" id="remindersList"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       TAB: SYMPTOM CHECKER
+  ══════════════════════════════════ -->
+  <div class="tab-pane" id="tab-checker">
+    <div class="dash-container">
+      <div class="page-title">
+        <h2>Symptom Checker 🩺</h2>
+        <p class="text-muted">Tell us how you're feeling and we'll give you clear guidance.</p>
+      </div>
+
+      <!-- Assessment form -->
+      <div class="card" id="assessForm">
+        <div class="card-header">New Symptom Assessment</div>
+        <div class="card-body">
+          <form id="triageForm" novalidate>
+            <div class="form-2col">
+              <div class="form-group">
+                <label for="ga">How many weeks pregnant are you?</label>
+                <input type="number" id="ga" min="4" max="42" placeholder="e.g. 28"/>
+                <span class="error-msg" id="err-ga"></span>
+              </div>
+              <div class="form-group">
+                <label for="bp">Blood Pressure (if known)</label>
+                <input type="text" id="bp" placeholder="e.g. 120/80  or  Not measured"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="fhr">Fetal Heart Rate in bpm (if measured)</label>
+              <input type="number" id="fhr" min="60" max="220" placeholder="e.g. 145  — leave blank if not measured"/>
+            </div>
+
+            <div class="form-group">
+              <label>What symptoms are you experiencing? <span class="hint">(select all that apply)</span></label>
+              <div class="checkbox-grid">
+                <label class="check-item" data-sev="red">
+                  <input type="checkbox" name="symptom" value="heavy-bleeding"/>
+                  🔴 Heavy vaginal bleeding
+                </label>
+                <label class="check-item" data-sev="red">
+                  <input type="checkbox" name="symptom" value="severe-pain"/>
+                  🔴 Severe abdominal pain
+                </label>
+                <label class="check-item" data-sev="red">
+                  <input type="checkbox" name="symptom" value="seizure"/>
+                  🔴 Seizure / convulsion
+                </label>
+                <label class="check-item" data-sev="red">
+                  <input type="checkbox" name="symptom" value="unconscious"/>
+                  🔴 Feeling faint / unconscious
+                </label>
+                <label class="check-item" data-sev="orange">
+                  <input type="checkbox" name="symptom" value="blurred-vision"/>
+                  🟠 Blurred vision / severe headache
+                </label>
+                <label class="check-item" data-sev="orange">
+                  <input type="checkbox" name="symptom" value="reduced-movements"/>
+                  🟠 Reduced baby movements
+                </label>
+                <label class="check-item" data-sev="orange">
+                  <input type="checkbox" name="symptom" value="contractions"/>
+                  🟠 Regular contractions / labor pains
+                </label>
+                <label class="check-item" data-sev="orange">
+                  <input type="checkbox" name="symptom" value="severe-vomiting"/>
+                  🟠 Severe vomiting / can't keep food down
+                </label>
+                <label class="check-item" data-sev="yellow">
+                  <input type="checkbox" name="symptom" value="leaking-fluid"/>
+                  🟡 Leaking fluid (waters breaking?)
+                </label>
+                <label class="check-item" data-sev="yellow">
+                  <input type="checkbox" name="symptom" value="fever"/>
+                  🟡 Fever or feeling hot/chills
+                </label>
+                <label class="check-item" data-sev="yellow">
+                  <input type="checkbox" name="symptom" value="swelling"/>
+                  🟡 Swelling of hands, face or feet
+                </label>
+                <label class="check-item" data-sev="yellow">
+                  <input type="checkbox" name="symptom" value="mild-pain"/>
+                  🟡 Mild pain or cramping
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="notes">Additional notes <span class="hint">(optional)</span></label>
+              <textarea id="notes" placeholder="Anything else you'd like to mention — how long symptoms have been there, other concerns…" rows="3"></textarea>
+            </div>
+
+            <div id="err-triage" class="auth-error" style="display:none;"></div>
+
+            <div style="text-align:center; margin-top:8px;">
+              <button type="submit" class="btn btn-primary btn-lg">
+                Check My Symptoms 🌿
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Result card -->
+      <div class="result-card" id="resultCard" style="display:none;">
+        <div class="result-inner">
+          <div class="result-priority" id="resultPriority"></div>
+          <h3 id="resultLabel"></h3>
+          <p id="resultAction" class="result-action"></p>
+          <div id="resultReasons" class="result-reasons"></div>
+          <div class="result-btns">
+            <button class="btn btn-outline" onclick="resetChecker()">New Assessment</button>
+            <button class="btn btn-sage" onclick="switchTab('history')">View My History</button>
+          </div>
+        </div>
+        <div class="result-decor"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       TAB: HISTORY
+  ══════════════════════════════════ -->
+  <div class="tab-pane" id="tab-history">
+    <div class="dash-container">
+      <div class="page-title flex" style="justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h2>Assessment History 📊</h2>
+          <p class="text-muted">All your past symptom checks in one place.</p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <input type="text" id="historySearch" placeholder="Search…" style="max-width:200px; padding:9px 14px; font-size:0.9rem;"/>
+          <button class="btn btn-outline btn-sm" onclick="exportHistory()">⬇ Export CSV</button>
+        </div>
+      </div>
+
+      <!-- Filter pills -->
+      <div class="filter-pills">
+        <button class="fpill active" data-filter="all">All</button>
+        <button class="fpill" data-filter="red">🔴 Red</button>
+        <button class="fpill" data-filter="orange">🟠 Orange</button>
+        <button class="fpill" data-filter="yellow">🟡 Yellow</button>
+        <button class="fpill" data-filter="green">🟢 Green</button>
+      </div>
+
+      <div id="historyList" class="history-list"></div>
+      <div id="historyEmpty" class="empty-state-big" style="display:none;">
+        <div class="esb-icon">🩺</div>
+        <h3>No assessments yet</h3>
+        <p>Use the Symptom Checker to log how you're feeling.</p>
+        <button class="btn btn-primary" onclick="switchTab('checker')">Check Symptoms →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       TAB: JOURNAL
+  ══════════════════════════════════ -->
+  <div class="tab-pane" id="tab-journal">
+    <div class="dash-container">
+      <div class="page-title">
+        <h2>Pregnancy Journal 📓</h2>
+        <p class="text-muted">A safe space to write your thoughts, feelings and memories.</p>
+      </div>
+
+      <div class="journal-layout">
+        <!-- Write panel -->
+        <div class="journal-write card">
+          <div class="card-header">New Entry ✍️</div>
+          <div class="card-body">
+            <form id="journalForm">
+              <div class="form-group">
+                <label for="jTitle">Entry Title</label>
+                <input type="text" id="jTitle" placeholder="e.g. Felt baby kick for the first time!"/>
+              </div>
+              <div class="form-group">
+                <label>How are you feeling today?</label>
+                <div class="mood-row" id="moodRow">
+                  <button type="button" class="mood-btn" data-mood="😄">😄 Great</button>
+                  <button type="button" class="mood-btn" data-mood="😊">😊 Good</button>
+                  <button type="button" class="mood-btn" data-mood="😐">😐 Okay</button>
+                  <button type="button" class="mood-btn" data-mood="😟">😟 Low</button>
+                  <button type="button" class="mood-btn" data-mood="😢">😢 Hard day</button>
+                </div>
+                <input type="hidden" id="jMood" value=""/>
+              </div>
+              <div class="form-group">
+                <label for="jText">Write your entry</label>
+                <textarea id="jText" rows="6" placeholder="What's on your mind today? How is your body feeling? Any special moments to remember…"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="jWeek">Pregnancy Week</label>
+                <input type="number" id="jWeek" min="4" max="42" placeholder="e.g. 24"/>
+              </div>
+              <button type="submit" class="btn btn-primary w-full" style="justify-content:center;">
+                Save Entry 💛
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Entries list -->
+        <div class="journal-entries">
+          <h3 class="section-label-sm" style="margin-bottom:16px;">Your Entries</h3>
+          <div id="journalList"></div>
+          <div id="journalEmpty" class="empty-state-big" style="display:none;">
+            <div class="esb-icon">📓</div>
+            <h3>Start your journal</h3>
+            <p>Write your first entry — even a few lines can be special to look back on.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       TAB: WELLBEING
+  ══════════════════════════════════ -->
+  <div class="tab-pane" id="tab-wellbeing">
+    <div class="dash-container">
+      <div class="page-title">
+        <h2>Wellbeing Tracker 🌿</h2>
+        <p class="text-muted">Small daily check-ins to help you stay on top of your health.</p>
+      </div>
+
+      <div class="wellbeing-grid">
+        <!-- Daily check-in card -->
+        <div class="card wb-card">
+          <div class="card-header">Today's Check-In</div>
+          <div class="card-body">
+            <div class="wb-row">
+              <label class="wb-label">💧 Water intake today</label>
+              <div class="water-tracker" id="waterTracker">
+                <!-- 8 glasses -->
+              </div>
+              <span id="waterCount" class="wb-count">0 / 8 glasses</span>
+            </div>
+            <div class="wb-row">
+              <label class="wb-label">😴 Hours of sleep last night</label>
+              <div class="sleep-slider">
+                <input type="range" id="sleepSlider" min="0" max="12" step="0.5" value="7"/>
+                <span id="sleepVal">7 hrs</span>
+              </div>
+            </div>
+            <div class="wb-row">
+              <label class="wb-label">🍎 Appetite today</label>
+              <div class="appetite-btns" id="appetiteBtns">
+                <button type="button" class="apt-btn" data-val="poor">😕 Poor</button>
+                <button type="button" class="apt-btn" data-val="fair">🙂 Fair</button>
+                <button type="button" class="apt-btn" data-val="good">😊 Good</button>
+                <button type="button" class="apt-btn" data-val="great">😄 Great</button>
+              </div>
+            </div>
+            <div class="wb-row">
+              <label class="wb-label">👣 Activity level today</label>
+              <div class="activity-btns" id="activityBtns">
+                <button type="button" class="apt-btn" data-val="rest">🛌 Resting</button>
+                <button type="button" class="apt-btn" data-val="light">🚶 Light</button>
+                <button type="button" class="apt-btn" data-val="moderate">🏃 Moderate</button>
+              </div>
+            </div>
+            <div class="wb-row">
+              <label class="wb-label">💬 Baby movements today</label>
+              <div class="mov-btns" id="movBtns">
+                <button type="button" class="apt-btn" data-val="none">None felt</button>
+                <button type="button" class="apt-btn" data-val="few">A few</button>
+                <button type="button" class="apt-btn" data-val="normal">Normal</button>
+                <button type="button" class="apt-btn" data-val="lots">Very active</button>
+              </div>
+            </div>
+            <button class="btn btn-sage w-full mt-3" style="justify-content:center;" onclick="saveWellbeing()">
+              Save Today's Check-In 🌿
+            </button>
+          </div>
+        </div>
+
+        <!-- Tips panel -->
+        <div class="wb-tips-col">
+          <div class="card wb-tips-card">
+            <div class="card-header">💛 Nutrition Tips</div>
+            <div class="card-body">
+              <div class="tip-item">🥬 Eat plenty of leafy greens for folate (spinach, sukuma wiki)</div>
+              <div class="tip-item">🥚 Include protein at every meal — eggs, beans, groundnuts</div>
+              <div class="tip-item">💧 Drink 8–10 glasses of water daily</div>
+              <div class="tip-item">🍌 Bananas and sweet potatoes are great for potassium</div>
+              <div class="tip-item">🚫 Avoid raw meat, uncooked eggs and alcohol</div>
+            </div>
+          </div>
+          <div class="card wb-tips-card mt-2">
+            <div class="card-header">🛌 Rest & Movement</div>
+            <div class="card-body">
+              <div class="tip-item">😴 Aim for 8–9 hours of sleep — use a pillow between your knees</div>
+              <div class="tip-item">🚶 A 20–30 min gentle walk is safe and beneficial most days</div>
+              <div class="tip-item">🧘 Try gentle stretches or prenatal yoga to ease back pain</div>
+              <div class="tip-item">⛔ Avoid lying flat on your back after 20 weeks — sleep on your side</div>
+            </div>
+          </div>
+          <div class="card wb-tips-card mt-2">
+            <div class="card-header">🗓️ Antenatal Reminders</div>
+            <div class="card-body">
+              <div class="tip-item">📋 Don't miss your ANC visits — they protect you and baby</div>
+              <div class="tip-item">💊 Take your iron, folic acid and calcium as prescribed</div>
+              <div class="tip-item">🦟 Sleep under a treated mosquito net every night</div>
+              <div class="tip-item">📞 Keep your midwife's number saved and easy to reach</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── Patient Detail Modal ───────────────── -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Assessment Details</h3>
+      <button class="modal-close" onclick="UI.closeModal('detailModal')">×</button>
+    </div>
+    <div class="modal-body" id="detailModalBody"></div>
+  </div>
+</div>
+
+<!-- ── Journal Modal ─────────────────────── -->
+<div class="modal-overlay" id="journalModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="jModalTitle">Journal Entry</h3>
+      <button class="modal-close" onclick="UI.closeModal('journalModal')">×</button>
+    </div>
+    <div class="modal-body" id="journalModalBody"></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<footer style="margin-top:60px;">
+  <div class="footer-brand">🌸 MamaCare</div>
+  <p>Your pregnancy companion — built with love in Kampala, Uganda.</p>
+  <p class="mt-2" style="font-size:0.8rem; opacity:0.45;">Not a substitute for professional medical advice. Always consult your midwife or doctor.</p>
+</footer>
+
+<script src="js/db.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

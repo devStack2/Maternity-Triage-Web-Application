@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Log In — MamaCare</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-split">
+
+  <!-- ── Left Panel ───────────────────── -->
+  <div class="auth-panel">
+    <div class="auth-brand">
+      <a href="index.html" class="logo"><span>🌸</span> MamaCare</a>
+    </div>
+
+    <div class="auth-box">
+      <div class="auth-heading">
+        <h1>Welcome back 💛</h1>
+        <p>Log in to continue your pregnancy journey with MamaCare.</p>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="input-icon-wrap">
+            <span class="icon">📧</span>
+            <input type="email" id="email" placeholder="you@email.com" autocomplete="email"/>
+          </div>
+          <span class="error-msg" id="err-email"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-icon-wrap">
+            <span class="icon">🔒</span>
+            <input type="password" id="password" placeholder="Your password" autocomplete="current-password"/>
+            <button type="button" class="eye-toggle" id="togglePass" aria-label="Show password">👁</button>
+          </div>
+          <span class="error-msg" id="err-password"></span>
+        </div>
+
+        <div id="login-error" class="auth-error" style="display:none;"></div>
+
+        <button type="submit" class="btn btn-primary w-full" style="justify-content:center; margin-top:4px;">
+          Log In 🌿
+        </button>
+      </form>
+
+      <div class="divider"></div>
+
+      <!-- Demo account quick-fill -->
+      <div class="demo-section">
+        <p class="text-muted" style="font-size:0.88rem; text-align:center; margin-bottom:10px;">
+          Don't have an account yet?
+        </p>
+        <a href="signup.html" class="btn btn-outline w-full" style="justify-content:center;">
+          Create Free Account →
+        </a>
+      </div>
+
+      <p class="auth-switch mt-3" style="font-size:0.83rem; color:var(--muted); text-align:center;">
+        <a href="index.html">← Back to home</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Right Decoration ─────────────── -->
+  <div class="auth-deco">
+    <div class="deco-blob deco-1"></div>
+    <div class="deco-blob deco-2"></div>
+    <div class="deco-content">
+      <div class="deco-quote">
+        "Growing a human is the most extraordinary thing you will ever do."
+      </div>
+      <div class="deco-milestones">
+        <div class="milestone">
+          <span class="m-week">Week 8</span>
+          <span class="m-text">Baby's heartbeat begins 💓</span>
+        </div>
+        <div class="milestone">
+          <span class="m-week">Week 16</span>
+          <span class="m-text">Baby can hear your voice 👂</span>
+        </div>
+        <div class="milestone">
+          <span class="m-week">Week 24</span>
+          <span class="m-text">Baby opens eyes for first time 👀</span>
+        </div>
+        <div class="milestone">
+          <span class="m-week">Week 36</span>
+          <span class="m-text">Baby is almost ready to meet you 🌟</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/db.js"></script>
+<script>
+  if (DB.currentUser()) window.location.href = 'dashboard.html';
+
+  document.getElementById('togglePass').addEventListener('click', function() {
+    const inp = document.getElementById('password');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    ['email','password'].forEach(id => {
+      const el = document.getElementById('err-' + id);
+      if (el) { el.textContent = ''; el.classList.remove('show'); }
+    });
+    document.getElementById('login-error').style.display = 'none';
+
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    let valid = true;
+
+    if (!email) {
+      const el = document.getElementById('err-email');
+      el.textContent = 'Please enter your email.'; el.classList.add('show'); valid = false;
+    }
+    if (!password) {
+      const el = document.getElementById('err-password');
+      el.textContent = 'Please enter your password.'; el.classList.add('show'); valid = false;
+    }
+    if (!valid) return;
+
+    const result = DB.loginUser(email, password);
+    if (!result.ok) {
+      document.getElementById('login-error').textContent = result.msg;
+      document.getElementById('login-error').style.display = 'block';
+      return;
+    }
+
+    UI.toast('Welcome back, ' + result.user.firstName + '! 🌸', 'success');
+    setTimeout(() => window.location.href = 'dashboard.html', 700);
+  });
+</script>
+</body>
+</html>

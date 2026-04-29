@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account — MamaCare</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-split">
+
+  <!-- ── Left Panel ───────────────────── -->
+  <div class="auth-panel">
+    <div class="auth-brand">
+      <a href="index.html" class="logo"><span>🌸</span> MamaCare</a>
+    </div>
+
+    <div class="auth-box">
+      <div class="auth-heading">
+        <h1>Welcome, Mama 💛</h1>
+        <p>Create your free account to start tracking your pregnancy journey.</p>
+      </div>
+
+      <form id="signupForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <div class="input-icon-wrap">
+              <span class="icon">👤</span>
+              <input type="text" id="firstName" placeholder="Your first name" autocomplete="given-name"/>
+            </div>
+            <span class="error-msg" id="err-firstName"></span>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <div class="input-icon-wrap">
+              <span class="icon">👤</span>
+              <input type="text" id="lastName" placeholder="Your last name" autocomplete="family-name"/>
+            </div>
+            <span class="error-msg" id="err-lastName"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="input-icon-wrap">
+            <span class="icon">📧</span>
+            <input type="email" id="email" placeholder="you@email.com" autocomplete="email"/>
+          </div>
+          <span class="error-msg" id="err-email"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number (optional)</label>
+          <div class="input-icon-wrap">
+            <span class="icon">📱</span>
+            <input type="text" id="phone" placeholder="+256 700 000 000" autocomplete="tel"/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="lmp">Last Menstrual Period (LMP)</label>
+            <input type="date" id="lmp" max="" />
+            <span class="error-msg" id="err-lmp"></span>
+          </div>
+          <div class="form-group">
+            <label for="gravida">Gravida / Para <span class="hint">(optional)</span></label>
+            <input type="text" id="gravida" placeholder="e.g. G2P1"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="facility">Antenatal Clinic / Facility <span class="hint">(optional)</span></label>
+          <div class="input-icon-wrap">
+            <span class="icon">🏥</span>
+            <input type="text" id="facility" placeholder="e.g. Mulago Hospital"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-icon-wrap">
+            <span class="icon">🔒</span>
+            <input type="password" id="password" placeholder="At least 6 characters" autocomplete="new-password"/>
+            <button type="button" class="eye-toggle" id="togglePass" aria-label="Show password">👁</button>
+          </div>
+          <span class="error-msg" id="err-password"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="input-icon-wrap">
+            <span class="icon">🔒</span>
+            <input type="password" id="confirmPassword" placeholder="Repeat your password" autocomplete="new-password"/>
+          </div>
+          <span class="error-msg" id="err-confirmPassword"></span>
+        </div>
+
+        <div class="form-group terms-check">
+          <label class="check-item" id="termsLabel">
+            <input type="checkbox" id="terms"/>
+            <span>I agree that my data stays on this device and is not shared with anyone.</span>
+          </label>
+          <span class="error-msg" id="err-terms"></span>
+        </div>
+
+        <div id="signup-error" class="auth-error" style="display:none;"></div>
+
+        <button type="submit" class="btn btn-primary w-full" style="justify-content:center; margin-top:8px;">
+          Create My Account 🌿
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        Already have an account? <a href="login.html">Log in here →</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Right Decoration ─────────────── -->
+  <div class="auth-deco">
+    <div class="deco-blob deco-1"></div>
+    <div class="deco-blob deco-2"></div>
+    <div class="deco-content">
+      <div class="deco-quote">
+        "Every day is a new chapter in the most beautiful story you'll ever tell."
+      </div>
+      <div class="deco-tips">
+        <div class="deco-tip">🌿 Track your symptoms</div>
+        <div class="deco-tip">📓 Keep a pregnancy journal</div>
+        <div class="deco-tip">💛 Get personalised guidance</div>
+        <div class="deco-tip">🔒 100% private & free</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/db.js"></script>
+<script>
+  if (DB.currentUser()) window.location.href = 'dashboard.html';
+
+  // Set max LMP to today
+  document.getElementById('lmp').max = new Date().toISOString().split('T')[0];
+
+  // Toggle password visibility
+  document.getElementById('togglePass').addEventListener('click', function() {
+    const inp = document.getElementById('password');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  });
+
+  function showErr(id, msg) {
+    const el = document.getElementById('err-' + id);
+    if (el) { el.textContent = msg; el.classList.add('show'); }
+  }
+  function clearErr(id) {
+    const el = document.getElementById('err-' + id);
+    if (el) { el.textContent = ''; el.classList.remove('show'); }
+  }
+
+  document.getElementById('signupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let valid = true;
+
+    ['firstName','lastName','email','lmp','password','confirmPassword','terms'].forEach(clearErr);
+
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName  = document.getElementById('lastName').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const lmp       = document.getElementById('lmp').value;
+    const password  = document.getElementById('password').value;
+    const confirm   = document.getElementById('confirmPassword').value;
+    const terms     = document.getElementById('terms').checked;
+    const phone     = document.getElementById('phone').value.trim();
+    const gravida   = document.getElementById('gravida').value.trim();
+    const facility  = document.getElementById('facility').value.trim();
+
+    if (!firstName) { showErr('firstName', 'Please enter your first name.'); valid = false; }
+    if (!lastName)  { showErr('lastName', 'Please enter your last name.');  valid = false; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showErr('email', 'Please enter a valid email address.'); valid = false;
+    }
+    if (!lmp) { showErr('lmp', 'Please enter your last menstrual period date.'); valid = false; }
+    if (password.length < 6) { showErr('password', 'Password must be at least 6 characters.'); valid = false; }
+    if (password !== confirm) { showErr('confirmPassword', 'Passwords do not match.'); valid = false; }
+    if (!terms) { showErr('terms', 'Please accept to continue.'); valid = false; }
+
+    if (!valid) return;
+
+    const result = DB.registerUser({ firstName, lastName, email, phone, lmp, gravida, facility, password });
+
+    if (!result.ok) {
+      document.getElementById('signup-error').textContent = result.msg;
+      document.getElementById('signup-error').style.display = 'block';
+      return;
+    }
+
+    // Auto-login after signup
+    DB.loginUser(email, password);
+    UI.toast('Welcome to MamaCare, ' + firstName + '! 🌸', 'success');
+    setTimeout(() => window.location.href = 'dashboard.html', 800);
+  });
+</script>
+</body>
+</html>
